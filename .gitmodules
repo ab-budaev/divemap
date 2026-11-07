@@ -1,0 +1,3 @@
+[submodule "openspec/schemas/spec-driven-ru"]
+	path = openspec/schemas/spec-driven-ru
+	url = git@github.com:ab-budaev/spec-driven-ru.git
