@@ -1,0 +1,50 @@
+name: commits
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  conventional-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install conventional-pre-commit
+        run: pipx install conventional-pre-commit==4.5.0
+
+      - name: Check commit messages
+        shell: bash
+        run: |
+          set -u
+          zero="0000000000000000000000000000000000000000"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch --no-tags origin "${{ github.base_ref }}"
+            range="FETCH_HEAD..HEAD"
+          elif [ "${{ github.event.before }}" = "$zero" ]; then
+            git fetch --no-tags origin "${{ github.event.repository.default_branch }}"
+            range="FETCH_HEAD..HEAD"
+          else
+            range="${{ github.event.before }}..${{ github.event.after }}"
+          fi
+          echo "Checking commits in range: $range"
+
+          failed=0
+          for sha in $(git rev-list --no-merges "$range"); do
+            git log -1 --format=%B "$sha" > /tmp/commit-msg.txt
+            if ! out=$(conventional-pre-commit /tmp/commit-msg.txt 2>&1); then
+              echo "::error::Commit $sha does not follow Conventional Commits"
+              echo "--- $sha ---"
+              echo "$out"
+              failed=1
+            fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo "Some commit messages do not follow Conventional Commits: https://www.conventionalcommits.org/"
+            exit 1
+          fi
+          echo "All commit messages follow Conventional Commits"

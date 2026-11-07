@@ -4,4 +4,13 @@
 
 ## Соглашения по коммитам
 
-Мы используем [conventional commits](https://www.conventionalcommits.org/ru/v1.0.0/).
+Мы используем [conventional commits](https://www.conventionalcommits.org/ru/v1.0.0/). Формат проверяется автоматически: локально git-хуком `commit-msg` и в GitHub Actions при push и pull request.
+
+Чтобы включить локальную проверку, один раз после клонирования репозитория:
+
+```console
+uv tool install pre-commit
+make hooks
+```
+
+После этого коммит с сообщением не в формате conventional commits будет отклонён до создания.
