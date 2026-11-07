@@ -1,0 +1,36 @@
+{
+	"name": "divemap-backend",
+	"build": {
+		"dockerfile": "../Dockerfile",
+		"target": "dev",
+		"context": ".."
+	},
+	"workspaceFolder": "/opt/divemap-backend",
+	"containerEnv": {
+		"PYTHONPATH": "/opt/divemap-backend/src"
+	},
+	"runArgs": [
+		"--env-file",
+		"${localWorkspaceFolder}/.env",
+		"-p",
+		"8000:8000"
+	],
+	"mounts": [
+		"type=volume,source=divemap-backend-venv,target=/opt/divemap-backend/.venv",
+		"type=bind,source=${localWorkspaceFolder},target=/opt/divemap-backend"
+	],
+	"shutdownAction": "stopContainer",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash"
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.debugpy",
+				"ms-python.vscode-pylance",
+				"charliermarsh.ruff"
+			]
+		}
+	}
+}

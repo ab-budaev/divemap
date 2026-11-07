@@ -1,0 +1,5 @@
+# Changes here will be overwritten by Copier
+_commit: 9704a96
+_src_path: https://github.com/ab-budaev/python-template.git
+app_name: divemap-backend
+python_version: '3.14'
