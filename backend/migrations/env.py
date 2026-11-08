@@ -3,25 +3,21 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+import infrastructure.users
 from infrastructure.database import Base
 from settings import AppSettings
 
-# Alembic Config object: предоставляет доступ к значениям .ini
 config = context.config
 
-# Интерпретация файла конфигурации для настройки логирования
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# DSN берём из конфигурации приложения (.env) через AppSettings
 config.set_main_option("sqlalchemy.url", AppSettings().database_url)
 
-# Метаданные моделей для автогенерации миграций
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    """Запуск миграций в 'offline' режиме (без подключения к БД)."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -35,7 +31,6 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Запуск миграций в 'online' режиме с подключением к БД."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

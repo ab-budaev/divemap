@@ -7,7 +7,7 @@ from log import initialize_logging
 from settings import AppSettings, get_settings
 from telemetry import initialize_telemetry
 
-from .routers import health_router
+from .routers import health_router, users_router
 
 
 def create_app(
@@ -30,5 +30,6 @@ def create_app(
     )
     app.state.settings = app_settings
     app.include_router(health_router)
+    app.include_router(users_router)
     FastAPIInstrumentor.instrument_app(app)
     return app
