@@ -60,6 +60,9 @@ exclude = [
 [tool.ruff.lint]
 select = ["W", "E", "F", "I", "N", "T20", "Q"]
 
+[tool.ruff.lint.per-file-ignores]
+"migrations/env.py" = ["F401"]
+
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
