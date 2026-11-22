@@ -1,3 +1,5 @@
 .env
 geofront.toml
 .opencode/
+node_modules/
+dist/

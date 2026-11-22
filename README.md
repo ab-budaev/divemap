@@ -4,12 +4,14 @@
 
 ## Стек
 
+- **Frontend** (`frontend/`): React 19, TypeScript, Vite, TanStack Query; production-сборка — отдельный Docker-образ (nginx + статика)
 - **Backend** (`backend/`): Python 3.14, FastAPI, SQLAlchemy 2.0, Alembic, pydantic-settings
 - **БД**: PostgreSQL (Docker Compose, локальный каталог данных `.data/pgdata` на хосте)
 
 ## Требования
 
 - Docker и Docker Compose
+- Node.js 24+ и npm — для разработки фронтенда
 - [uv](https://docs.astral.sh/uv/) — для локальной разработки backend-кода вне контейнера (опционально)
 
 ## Локальный запуск
@@ -20,23 +22,37 @@
    cp backend/.env.example backend/.env
    ```
 
-2. Подними окружение одной командой (соберёт и запустит сервисы приложения и базы):
+2. Подними всё окружение одной командой из корня репозитория:
 
    ```sh
-   make -C backend up
+   make up
    ```
 
-3. Проверь, что сервис отвечает:
+   Команда поднимает бэкенд (приложение + PostgreSQL в Docker Compose, в фоне), при необходимости устанавливает npm-зависимости и запускает dev-сервер фронтенда на переднем плане.
 
-   ```sh
-   curl http://localhost:8000/health   # {"status":"ok"}
-   ```
+3. Открой http://localhost:5173 — заглушка главного экрана покажет результат health-check бэкенда.
+
+Полезные команды:
+
+```sh
+make up-backend     # только бэкенд (API на :8000)
+make up-frontend    # только dev-сервер фронтенда (:5173)
+make down           # остановить всё окружение (и фронтенд, и бэкенд)
+```
 
 Данные PostgreSQL хранятся в локальном каталоге `backend/.data/pgdata` на хосте (bind mount) и переживают перезапуск и пересоздание контейнеров.
 
 ## Структура репозитория
 
 ```text
+frontend/             # SPA-фронтенд (React + TypeScript, Vite)
+  src/
+    api/              # слой доступа к API: fetch-клиент и endpoint-функции
+    components/       # переиспользуемые UI-компоненты
+    features/         # функциональные модули (места, журнал — следующие этапы)
+    styles/           # глобальные стили
+  Dockerfile          # отдельный образ фронтенда (nginx + статика)
+  nginx.conf
 backend/              # Python-бэкенд (FastAPI)
   src/
     api/              # presentation: FastAPI-приложение и роутеры
@@ -50,6 +66,24 @@ backend/              # Python-бэкенд (FastAPI)
   Makefile
   .env.example
 openspec/             # спецификации продукта (OpenSpec)
+```
+
+## Разработка frontend
+
+```sh
+cd frontend
+npm install         # первый раз
+npm run dev         # dev-сервер с hot-reload на :5173, /api проксируется на :8000
+npm run build       # production-сборка в dist/
+npm run lint        # oxlint
+npx tsc -b --noEmit # проверка типов
+```
+
+Production-образ фронтенда собирается отдельно от бэкенда:
+
+```sh
+docker build -t divemap-frontend frontend/
+docker run --rm -p 8080:80 divemap-frontend   # статика на :8080
 ```
 
 ## Разработка backend
