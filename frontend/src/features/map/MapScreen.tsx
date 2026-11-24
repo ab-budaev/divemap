@@ -4,8 +4,15 @@ import { loadYMaps, type YMaps } from './ymaps'
 import { demoSpots, type DemoSpot } from './spots'
 import { SpotPanel } from './SpotPanel'
 import { CreateSpotPanel } from './CreateSpotPanel'
+import { Sidebar } from '../menu/Sidebar'
+import { SectionPanel } from '../menu/SectionPanel'
+import type { SectionId } from '../menu/sections'
 
-type PanelState = { kind: 'spot'; spot: DemoSpot } | { kind: 'create'; coordinates: [number, number] } | null
+type PanelState =
+  | { kind: 'spot'; spot: DemoSpot }
+  | { kind: 'create'; coordinates: [number, number] }
+  | { kind: 'section'; section: SectionId }
+  | null
 
 export default function MapScreen() {
   const [maps, setMaps] = useState<YMaps | null>(null)
@@ -62,8 +69,10 @@ function MapView({ maps }: { maps: YMaps }) {
           </YMapMarker>
         ))}
       </YMap>
+      <Sidebar onSelect={(section) => setPanel({ kind: 'section', section })} />
       {panel?.kind === 'spot' && <SpotPanel spot={panel.spot} onClose={() => setPanel(null)} />}
       {panel?.kind === 'create' && <CreateSpotPanel coordinates={panel.coordinates} onClose={() => setPanel(null)} />}
+      {panel?.kind === 'section' && <SectionPanel section={panel.section} onClose={() => setPanel(null)} />}
     </div>
   )
 }

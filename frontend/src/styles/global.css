@@ -29,6 +29,72 @@ body {
   transform: translate(-50%, -50%);
 }
 
+.sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3rem;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+}
+
+.sidebar--expanded {
+  width: 12rem;
+}
+
+.sidebar-list {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+}
+
+.sidebar-list button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.sidebar-list button:hover {
+  background: #f0f0f0;
+}
+
+.sidebar--expanded .sidebar-list button {
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+}
+
+.sidebar-label {
+  display: none;
+  white-space: nowrap;
+}
+
+.sidebar--expanded .sidebar-label {
+  display: inline;
+}
+
+.sidebar-toggle {
+  align-self: center;
+  margin-bottom: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
 .map-panel {
   position: absolute;
   top: 1rem;
