@@ -10,9 +10,10 @@ import fastapi
 import pytest
 from fastapi.testclient import TestClient
 
+from domain.spots import Spot
 from domain.users import User
 from main import app as _app
-from tests.stubs import StubUserRepository
+from tests.stubs import StubSpotRepository, StubUserRepository
 
 
 @pytest.fixture
@@ -37,6 +38,20 @@ def user() -> User:
 
 
 @pytest.fixture
+def spot() -> Spot:
+    now = datetime.now(tz=UTC)
+    return Spot(
+        id=uuid.uuid4(),
+        name="Байкал, Листвянка",
+        description="Ледовые погружения, прозрачность до 40 метров.",
+        lat=51.8461,
+        lng=104.8722,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+@pytest.fixture
 def user_repository(user: User) -> StubUserRepository:
     return StubUserRepository(user)
 
@@ -44,3 +59,13 @@ def user_repository(user: User) -> StubUserRepository:
 @pytest.fixture
 def empty_user_repository() -> StubUserRepository:
     return StubUserRepository(None)
+
+
+@pytest.fixture
+def spot_repository(spot: Spot) -> StubSpotRepository:
+    return StubSpotRepository([spot])
+
+
+@pytest.fixture
+def empty_spot_repository() -> StubSpotRepository:
+    return StubSpotRepository([])

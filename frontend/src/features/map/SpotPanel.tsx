@@ -1,7 +1,7 @@
-import type { DemoSpot } from './spots'
+import type { Spot } from '../../api/spots'
 
 interface SpotPanelProps {
-  spot: DemoSpot
+  spot: Spot
   onClose: () => void
 }
 
