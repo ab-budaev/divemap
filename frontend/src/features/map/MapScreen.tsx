@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 import { loadYMaps, type YMaps } from './ymaps'
-import { demoSpots, type DemoSpot } from './spots'
+import { fetchSpots, type Spot } from '../../api/spots'
 import { SpotPanel } from './SpotPanel'
 import { CreateSpotPanel } from './CreateSpotPanel'
 import { Sidebar } from '../menu/Sidebar'
@@ -9,7 +10,7 @@ import { SectionPanel } from '../menu/SectionPanel'
 import type { SectionId } from '../menu/sections'
 
 type PanelState =
-  | { kind: 'spot'; spot: DemoSpot }
+  | { kind: 'spot'; spot: Spot }
   | { kind: 'create'; coordinates: [number, number] }
   | { kind: 'section'; section: SectionId }
   | null
@@ -45,6 +46,7 @@ export default function MapScreen() {
 
 function MapView({ maps }: { maps: YMaps }) {
   const [panel, setPanel] = useState<PanelState>(null)
+  const { data: spots, isError, refetch } = useQuery({ queryKey: ['spots'], queryFn: fetchSpots })
   const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapListener, YMapControls, YMapMarker, YMapZoomControl } =
     maps
 
@@ -63,13 +65,21 @@ function MapView({ maps }: { maps: YMaps }) {
         <YMapControls position="right">
           <YMapZoomControl />
         </YMapControls>
-        {demoSpots.map((spot) => (
-          <YMapMarker key={spot.id} coordinates={spot.coordinates} onClick={() => setPanel({ kind: 'spot', spot })}>
+        {(spots ?? []).map((spot) => (
+          <YMapMarker key={spot.id} coordinates={[spot.lng, spot.lat]} onClick={() => setPanel({ kind: 'spot', spot })}>
             <div className="map-marker" />
           </YMapMarker>
         ))}
       </YMap>
       <Sidebar onSelect={(section) => setPanel({ kind: 'section', section })} />
+      {isError && (
+        <div className="map-error" role="alert">
+          <span>Не удалось загрузить места погружений.</span>
+          <button type="button" onClick={() => void refetch()}>
+            Повторить
+          </button>
+        </div>
+      )}
       {panel?.kind === 'spot' && <SpotPanel spot={panel.spot} onClose={() => setPanel(null)} />}
       {panel?.kind === 'create' && <CreateSpotPanel coordinates={panel.coordinates} onClose={() => setPanel(null)} />}
       {panel?.kind === 'section' && <SectionPanel section={panel.section} onClose={() => setPanel(null)} />}

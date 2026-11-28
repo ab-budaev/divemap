@@ -4,8 +4,10 @@ from functools import lru_cache
 import fastapi
 from sqlalchemy.orm import Session, sessionmaker
 
+from domain.spots import SpotRepository
 from domain.users import UserRepository
 from infrastructure.database import build_session_factory
+from infrastructure.spots import SqlAlchemySpotRepository
 from infrastructure.users import SqlAlchemyUserRepository
 from settings import get_settings
 
@@ -22,3 +24,7 @@ def get_db_session() -> Iterator[Session]:
 
 def get_user_repository(session: Session = fastapi.Depends(get_db_session)) -> UserRepository:
     return SqlAlchemyUserRepository(session)
+
+
+def get_spot_repository(session: Session = fastapi.Depends(get_db_session)) -> SpotRepository:
+    return SqlAlchemySpotRepository(session)
