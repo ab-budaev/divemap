@@ -11,11 +11,13 @@ export interface SpotDraft {
 
 interface CreateSpotModalProps {
   coordinates: [number, number]
+  isSubmitting: boolean
+  submitError: string | null
   onSubmit: (draft: SpotDraft) => void
   onClose: () => void
 }
 
-export function CreateSpotModal({ coordinates, onSubmit, onClose }: CreateSpotModalProps) {
+export function CreateSpotModal({ coordinates, isSubmitting, submitError, onSubmit, onClose }: CreateSpotModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [photos, setPhotos] = useState<File[]>([])
@@ -58,11 +60,16 @@ export function CreateSpotModal({ coordinates, onSubmit, onClose }: CreateSpotMo
             <textarea value={description} onChange={(event) => setDescription(event.target.value)} rows={4} />
           </label>
           <PhotoPicker photos={photos} onChange={setPhotos} />
+          {submitError && (
+            <p className="modal-error" role="alert">
+              {submitError}
+            </p>
+          )}
           <footer className="modal-actions">
             <button type="button" onClick={onClose}>
               Отмена
             </button>
-            <button type="submit" disabled={!name.trim()}>
+            <button type="submit" disabled={!name.trim() || isSubmitting}>
               Сохранить
             </button>
           </footer>

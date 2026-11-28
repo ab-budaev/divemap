@@ -42,3 +42,10 @@ class SqlAlchemySpotRepository:
     def get_all(self) -> list[Spot]:
         models = self._session.scalars(select(SpotModel).order_by(SpotModel.created_at)).all()
         return [model.to_domain() for model in models]
+
+    def create(self, name: str, description: str | None, lat: float, lng: float) -> Spot:
+        model = SpotModel(name=name, description=description, lat=lat, lng=lng)
+        self._session.add(model)
+        self._session.commit()
+        self._session.refresh(model)
+        return model.to_domain()

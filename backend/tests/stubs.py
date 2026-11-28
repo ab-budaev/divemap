@@ -1,3 +1,6 @@
+import uuid
+from datetime import UTC, datetime
+
 from domain.spots import Spot
 from domain.users import User
 
@@ -16,3 +19,17 @@ class StubSpotRepository:
 
     def get_all(self) -> list[Spot]:
         return self._spots
+
+    def create(self, name: str, description: str | None, lat: float, lng: float) -> Spot:
+        now = datetime.now(tz=UTC)
+        spot = Spot(
+            id=uuid.uuid4(),
+            name=name,
+            description=description,
+            lat=lat,
+            lng=lng,
+            created_at=now,
+            updated_at=now,
+        )
+        self._spots.append(spot)
+        return spot
