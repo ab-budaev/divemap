@@ -4,16 +4,12 @@ import { useQuery } from '@tanstack/react-query'
 import { loadYMaps, type YMaps } from './ymaps'
 import { fetchSpots, type Spot } from '../../api/spots'
 import { SpotPanel } from './SpotPanel'
-import { CreateSpotPanel } from './CreateSpotPanel'
+import { CreateSpotModal } from './CreateSpotModal'
 import { Sidebar } from '../menu/Sidebar'
 import { SectionPanel } from '../menu/SectionPanel'
 import type { SectionId } from '../menu/sections'
 
-type PanelState =
-  | { kind: 'spot'; spot: Spot }
-  | { kind: 'create'; coordinates: [number, number] }
-  | { kind: 'section'; section: SectionId }
-  | null
+type PanelState = { kind: 'spot'; spot: Spot } | { kind: 'section'; section: SectionId } | null
 
 export default function MapScreen() {
   const [maps, setMaps] = useState<YMaps | null>(null)
@@ -46,6 +42,7 @@ export default function MapScreen() {
 
 function MapView({ maps }: { maps: YMaps }) {
   const [panel, setPanel] = useState<PanelState>(null)
+  const [createDraft, setCreateDraft] = useState<{ coordinates: [number, number] } | null>(null)
   const { data: spots, isError, refetch } = useQuery({ queryKey: ['spots'], queryFn: fetchSpots })
   const { YMap, YMapDefaultSchemeLayer, YMapDefaultFeaturesLayer, YMapListener, YMapControls, YMapMarker, YMapZoomControl } =
     maps
@@ -58,7 +55,8 @@ function MapView({ maps }: { maps: YMaps }) {
         <YMapListener
           onClick={(object, event) => {
             if (!object) {
-              setPanel({ kind: 'create', coordinates: [event.coordinates[0], event.coordinates[1]] })
+              setPanel(null)
+              setCreateDraft({ coordinates: [event.coordinates[0], event.coordinates[1]] })
             }
           }}
         />
@@ -66,12 +64,29 @@ function MapView({ maps }: { maps: YMaps }) {
           <YMapZoomControl />
         </YMapControls>
         {(spots ?? []).map((spot) => (
-          <YMapMarker key={spot.id} coordinates={[spot.lng, spot.lat]} onClick={() => setPanel({ kind: 'spot', spot })}>
+          <YMapMarker
+            key={spot.id}
+            coordinates={[spot.lng, spot.lat]}
+            onClick={() => {
+              setCreateDraft(null)
+              setPanel({ kind: 'spot', spot })
+            }}
+          >
             <div className="map-marker" />
           </YMapMarker>
         ))}
+        {createDraft && (
+          <YMapMarker coordinates={createDraft.coordinates}>
+            <div className="map-marker map-marker--draft" />
+          </YMapMarker>
+        )}
       </YMap>
-      <Sidebar onSelect={(section) => setPanel({ kind: 'section', section })} />
+      <Sidebar
+        onSelect={(section) => {
+          setCreateDraft(null)
+          setPanel({ kind: 'section', section })
+        }}
+      />
       {isError && (
         <div className="map-error" role="alert">
           <span>Не удалось загрузить места погружений.</span>
@@ -81,8 +96,14 @@ function MapView({ maps }: { maps: YMaps }) {
         </div>
       )}
       {panel?.kind === 'spot' && <SpotPanel spot={panel.spot} onClose={() => setPanel(null)} />}
-      {panel?.kind === 'create' && <CreateSpotPanel coordinates={panel.coordinates} onClose={() => setPanel(null)} />}
       {panel?.kind === 'section' && <SectionPanel section={panel.section} onClose={() => setPanel(null)} />}
+      {createDraft && (
+        <CreateSpotModal
+          coordinates={createDraft.coordinates}
+          onSubmit={() => setCreateDraft(null)}
+          onClose={() => setCreateDraft(null)}
+        />
+      )}
     </div>
   )
 }
